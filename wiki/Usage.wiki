@@ -14,7 +14,8 @@ mutator.addMutation(new AddAnnotationMutation());
 mutator.addMutation(new AddObjectMutation());
 mutator.addMutation(new DeleteObjectMutation());
 mutator.addMutation(new MoveObjectMutation());
-mutator.addMutation(new UnsetFeatureMutation()); mutator.addMutation(new UpdateFeatureMutation());
+mutator.addMutation(new UnsetFeatureMutation());
+mutator.addMutation(new UpdateFeatureMutation());
 
 // configure a change tracker
 mutator.setTracker();
