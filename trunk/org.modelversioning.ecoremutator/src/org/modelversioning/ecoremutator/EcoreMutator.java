@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.eclipse.emf.edit.domain.EditingDomain;
 import org.modelversioning.ecoremutator.mutations.Mutation;
 import org.modelversioning.ecoremutator.tracker.IMutationTracker;
 import org.modelversioning.ecoremutator.tracker.impl.CSVMutationTracker;
@@ -51,6 +52,11 @@ public class EcoreMutator {
 	 * Tracker to specify to called mutators.
 	 */
 	private IMutationTracker tracker = new CSVMutationTracker();
+
+	/**
+	 * The editing domain used for executing mutations.
+	 */
+	private EditingDomain editingDomain = null;
 
 	/**
 	 * Adds a mutation with default weight (1).
@@ -116,6 +122,35 @@ public class EcoreMutator {
 	}
 
 	/**
+	 * Returns the {@link EditingDomain} used for performing the mutations.
+	 * 
+	 * <p>
+	 * The mutator also works without an editing domain. In this case, this
+	 * method returns <code>null</code>.
+	 * </p>
+	 * 
+	 * @return the editing domain.
+	 */
+	public EditingDomain getEditingDomain() {
+		return editingDomain;
+	}
+
+	/**
+	 * Sets the {@link EditingDomain} to be used for performing the mutations.
+	 * 
+	 * <p>
+	 * The mutator also works without an editing domain. In this case, set
+	 * <code>null</code>.
+	 * </p>
+	 * 
+	 * @param editingDomain
+	 *            the editing domain to set.
+	 */
+	public void setEditingDomain(EditingDomain editingDomain) {
+		this.editingDomain = editingDomain;
+	}
+
+	/**
 	 * Mutate the model provided by the specified <code>modelProvider</code> for
 	 * <code>mutationCount</code> times.
 	 * 
@@ -156,12 +191,19 @@ public class EcoreMutator {
 			String selectedMutationId = weightedMutationIds
 					.get(selectedMutationIndex);
 			Mutation selectedMutator = mutations.get(selectedMutationId);
-			boolean success = selectedMutator.mutate(modelProvider, tracker);
+			boolean success = false;
+			if (editingDomain == null) {
+				success = selectedMutator.mutate(modelProvider, tracker);
+			} else {
+				MutationCommand command = new MutationCommand(editingDomain,
+						selectedMutator, modelProvider, tracker);
+				editingDomain.getCommandStack().execute(command);
+				success = command.isSuccessful();
+			}
 			if (!success) {
 				// set counter one back
 				i--;
 			}
 		}
 	}
-
 }
