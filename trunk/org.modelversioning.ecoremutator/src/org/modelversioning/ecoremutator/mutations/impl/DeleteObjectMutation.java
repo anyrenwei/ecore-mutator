@@ -93,4 +93,12 @@ public class DeleteObjectMutation extends AbstractMutation {
 	public String getId() {
 		return "mutation.deleteObject";
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean canHandleEditingDomain() {
+		return false;
+	}
 }

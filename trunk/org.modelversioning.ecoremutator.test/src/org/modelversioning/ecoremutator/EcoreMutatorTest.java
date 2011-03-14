@@ -85,16 +85,17 @@ public class EcoreMutatorTest extends TestCase {
 
 		EditingDomain editingDomain = new AdapterFactoryEditingDomain(
 				adapterFactory, commandStack, new HashMap<Resource, Boolean>());
-		mutator.setEditingDomain(editingDomain);
+		modelProviderSample1.setEditingDomain(editingDomain);
 		mutator.addMutation(new AddObjectMutation());
-		
+
 		final List<EventObject> events = new ArrayList<EventObject>();
-		editingDomain.getCommandStack().addCommandStackListener(new CommandStackListener() {
-			@Override
-			public void commandStackChanged(EventObject event) {
-				events.add(event);
-			}
-		});
+		editingDomain.getCommandStack().addCommandStackListener(
+				new CommandStackListener() {
+					@Override
+					public void commandStackChanged(EventObject event) {
+						events.add(event);
+					}
+				});
 		mutator.mutate(modelProviderSample1, 50);
 		assertTrue(events.size() > 0);
 	}

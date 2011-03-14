@@ -122,4 +122,12 @@ public class UpdateFeatureMutation extends AbstractMutation {
 	public String getId() {
 		return "mutation.updateFeature";
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean canHandleEditingDomain() {
+		return false;
+	}
 }

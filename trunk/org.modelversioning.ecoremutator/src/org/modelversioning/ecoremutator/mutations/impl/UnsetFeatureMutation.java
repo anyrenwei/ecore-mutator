@@ -102,4 +102,12 @@ public class UnsetFeatureMutation extends AbstractMutation {
 	public String getId() {
 		return "mutation.unsetFeature";
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean canHandleEditingDomain() {
+		return false;
+	}
 }

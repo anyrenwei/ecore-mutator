@@ -68,4 +68,12 @@ public class AddAnnotationMutation extends AbstractMutation {
 	public String getId() {
 		return "mutation.addAnnotation";
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean canHandleEditingDomain() {
+		return false;
+	}
 }
