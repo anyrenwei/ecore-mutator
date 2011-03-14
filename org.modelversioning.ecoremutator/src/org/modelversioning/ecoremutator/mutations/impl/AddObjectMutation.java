@@ -132,4 +132,12 @@ public class AddObjectMutation extends AbstractMutation {
 	public String getId() {
 		return "mutation.addObject";
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean canHandleEditingDomain() {
+		return false;
+	}
 }

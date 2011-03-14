@@ -12,13 +12,31 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.edit.domain.EditingDomain;
+import org.eclipse.emf.edit.domain.IEditingDomainProvider;
 
-public interface IModelProvider {
+public interface IModelProvider extends IEditingDomainProvider {
+
+	/**
+	 * Sets the editing domain.
+	 * 
+	 * @param editingDomain
+	 *            the editing domain to set.
+	 */
+	public abstract void setEditingDomain(EditingDomain editingDomain);
 
 	/**
 	 * @return the modelResource
 	 */
 	public abstract Resource getModelResource();
+
+	/**
+	 * Specifies whether an {@link EditingDomain} is provided.
+	 * 
+	 * @return <code>true</code> if an {@link EditingDomain} domain is provided,
+	 *         otherwise <code>false</code>.
+	 */
+	public abstract boolean providesEditingDomain();
 
 	/**
 	 * @param modelResource

@@ -34,6 +34,7 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
+import org.eclipse.emf.edit.domain.EditingDomain;
 import org.modelversioning.ecoremutator.IModelProvider;
 
 /**
@@ -58,6 +59,26 @@ public class ModelProvider implements IModelProvider {
 	 * A list of objects to exclude from selection for mutation.
 	 */
 	private Set<EObject> excludedObjects = new HashSet<EObject>();
+
+	/**
+	 * The editing domain used for executing mutations.
+	 */
+	private EditingDomain editingDomain = null;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setEditingDomain(EditingDomain editingDomain) {
+		this.editingDomain = editingDomain;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean providesEditingDomain() {
+		return getEditingDomain() != null;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -448,6 +469,14 @@ public class ModelProvider implements IModelProvider {
 	 */
 	public String getRandomString() {
 		return EcoreUtil.generateUUID();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public EditingDomain getEditingDomain() {
+		return editingDomain;
 	}
 
 }

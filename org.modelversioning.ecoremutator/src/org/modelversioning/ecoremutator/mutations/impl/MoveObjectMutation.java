@@ -104,4 +104,12 @@ public class MoveObjectMutation extends AbstractMutation {
 
 		return false;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean canHandleEditingDomain() {
+		return false;
+	}
 }

@@ -15,7 +15,11 @@ package org.modelversioning.ecoremutator.mutations;
 import java.util.Map;
 
 import org.eclipse.core.runtime.ILog;
+import org.eclipse.emf.common.command.Command;
+import org.eclipse.emf.edit.domain.EditingDomain;
+import org.modelversioning.ecoremutator.EcoreMutator;
 import org.modelversioning.ecoremutator.IModelProvider;
+import org.modelversioning.ecoremutator.MutationCommand;
 import org.modelversioning.ecoremutator.tracker.IMutationTracker;
 
 /**
@@ -48,6 +52,22 @@ public interface Mutation {
 	 *            to set.
 	 */
 	void setOptions(Map<Object, Object> options);
+
+	/**
+	 * Specifies whether the {@link Mutation} mutates a model using an own
+	 * {@link Command} within the {@link EditingDomain} provided by the
+	 * {@link IModelProvider}.
+	 * 
+	 * <p>
+	 * If not, the {@link EcoreMutator} will create a {@link MutationCommand}
+	 * surrounding the {@link #mutate(IModelProvider, IMutationTracker)} call.
+	 * Otherwise, the mutation must mutate the model within an own command.
+	 * </p>
+	 * 
+	 * @return <code>true</code> if the mutation issues commands by itself,
+	 *         <code>false</code> if the {@link EcoreMutator} shall handle that.
+	 */
+	boolean canHandleEditingDomain();
 
 	/**
 	 * Applies this mutation to the model provided by the specified
