@@ -44,6 +44,11 @@ public class EcoreMutator {
 	private Map<String, Mutation> mutations = new HashMap<String, Mutation>();
 
 	/**
+	 * The set of mandatory mutations which will be executed anyhow.
+	 */
+	private List<Mutation> mandatoryMutations = new ArrayList<Mutation>();
+
+	/**
 	 * The randomizer to use.
 	 */
 	private Random random = new Random();
@@ -52,6 +57,35 @@ public class EcoreMutator {
 	 * Tracker to specify to called mutators.
 	 */
 	private IMutationTracker tracker = new CSVMutationTracker();
+
+	/**
+	 * Adds the specified <code>mutation</code> to the list of mandatory
+	 * mutations.
+	 * 
+	 * @param mutation
+	 *            to add.
+	 */
+	public void addMandatoryMutation(Mutation mutation) {
+		mandatoryMutations.add(mutation);
+	}
+
+	/**
+	 * Removes the specified <code>mutation</code> from the list of mandatory
+	 * mutations.
+	 * 
+	 * @param mutation
+	 *            to remove.
+	 */
+	public void removeMandatoryMutation(Mutation mutation) {
+		mandatoryMutations.remove(mutation);
+	}
+
+	/**
+	 * Clears the list of mandatory mutations.
+	 */
+	public void clearMandatoryMutations() {
+		mandatoryMutations.clear();
+	}
 
 	/**
 	 * Adds a mutation with default weight (1).
@@ -142,6 +176,11 @@ public class EcoreMutator {
 	 */
 	public void mutate(IModelProvider modelProvider, int mutationCount,
 			Map<Object, Object> options) {
+		// call mandatory mutations
+		for (Mutation mutation : mandatoryMutations) {
+			invokeMutation(modelProvider, mutation);
+		}
+
 		// create weighted mutation list
 		List<String> weightedMutationIds = new ArrayList<String>();
 		for (String mutationId : this.mutations.keySet()) {
@@ -156,22 +195,38 @@ public class EcoreMutator {
 					.size());
 			String selectedMutationId = weightedMutationIds
 					.get(selectedMutationIndex);
-			Mutation selectedMutator = mutations.get(selectedMutationId);
-			boolean success = false;
-			if (selectedMutator.canHandleEditingDomain()
-					|| !modelProvider.providesEditingDomain()) {
-				success = selectedMutator.mutate(modelProvider, tracker);
-			} else {
-				EditingDomain editingDomain = modelProvider.getEditingDomain();
-				MutationCommand command = new MutationCommand(editingDomain,
-						selectedMutator, modelProvider, tracker);
-				editingDomain.getCommandStack().execute(command);
-				success = command.isSuccessful();
-			}
+			Mutation selectedMutation = mutations.get(selectedMutationId);
+			boolean success = invokeMutation(modelProvider, selectedMutation);
 			if (!success) {
 				// set counter one back
 				i--;
 			}
 		}
+	}
+
+	/**
+	 * Invokes the specified <code>mutation</code> with the specified
+	 * <code>modelProvider</code>.
+	 * 
+	 * @param modelProvider
+	 *            providing the model to mutate.
+	 * @param mutator
+	 *            to invoke.
+	 * @return whether the mutation was performed successfully.
+	 */
+	private boolean invokeMutation(IModelProvider modelProvider,
+			Mutation mutator) {
+		boolean success = false;
+		if (mutator.canHandleEditingDomain()
+				|| !modelProvider.providesEditingDomain()) {
+			success = mutator.mutate(modelProvider, tracker);
+		} else {
+			EditingDomain editingDomain = modelProvider.getEditingDomain();
+			MutationCommand command = new MutationCommand(editingDomain,
+					mutator, modelProvider, tracker);
+			editingDomain.getCommandStack().execute(command);
+			success = command.isSuccessful();
+		}
+		return success;
 	}
 }
