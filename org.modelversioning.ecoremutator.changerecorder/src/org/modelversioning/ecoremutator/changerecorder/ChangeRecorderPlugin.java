@@ -23,14 +23,12 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.emf.common.command.AbstractCommand;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.change.ChangeDescription;
 import org.eclipse.emf.ecore.change.util.ChangeRecorder;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.eclipse.emf.edit.command.AbstractOverrideableCommand;
 import org.eclipse.emf.edit.domain.EditingDomain;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Composite;
@@ -123,49 +121,9 @@ public class ChangeRecorderPlugin extends AbstractUIPlugin {
 					.getActiveWorkbenchWindow().getShell(), "Restore Model?",
 					"Do you want to restore the model state before the "
 							+ "recorded changes have been performed?");
-
-			// create new recorder for recording undoing the recorded changes
-			// because the recorded changes are in the reverse direction of the
-			// ones we need
-			ChangeRecorder inverseChangeRecorder = new ChangeRecorder(
-					editingDomain.getResourceSet());
-			AbstractCommand command = new AbstractOverrideableCommand(
-					editingDomain) {
-
-				@Override
-				public void doUndo() {
-					changeDescription.applyAndReverse();
-				}
-
-				@Override
-				public void doRedo() {
-					changeDescription.applyAndReverse();
-				}
-
-				@Override
-				public void doExecute() {
-					changeDescription.applyAndReverse();
-				}
-
-				@Override
-				public boolean doCanExecute() {
-					return true;
-				}
-
-				@Override
-				public boolean doCanUndo() {
-					return true;
-				}
-			};
-
-			// execute reverting the recorded changes
-			editingDomain.getCommandStack().execute(command);
-
-			// stop recording which now contains the ones in the intended
-			// direction
-			ChangeDescription inverseChangeDescription = inverseChangeRecorder
-					.endRecording();
-			saveChangeDescription(inverseChangeDescription, editingDomain);
+			
+			changeDescription.applyAndReverse();
+			saveChangeDescription(changeDescription, editingDomain);
 
 			// redo changes if user said so
 			if (!redo) {
