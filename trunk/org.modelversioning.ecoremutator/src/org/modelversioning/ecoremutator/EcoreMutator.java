@@ -178,6 +178,7 @@ public class EcoreMutator {
 			Map<Object, Object> options) {
 		// call mandatory mutations
 		for (Mutation mutation : mandatoryMutations) {
+			mutation.setOptions(options);
 			invokeMutation(modelProvider, mutation);
 		}
 
@@ -196,6 +197,7 @@ public class EcoreMutator {
 			String selectedMutationId = weightedMutationIds
 					.get(selectedMutationIndex);
 			Mutation selectedMutation = mutations.get(selectedMutationId);
+			selectedMutation.setOptions(options);
 			boolean success = invokeMutation(modelProvider, selectedMutation);
 			if (!success) {
 				// set counter one back
