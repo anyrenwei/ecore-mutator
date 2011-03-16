@@ -12,6 +12,7 @@
 
 package org.modelversioning.ecoremutator.mutations.impl;
 
+import java.io.File;
 import java.io.StringWriter;
 import java.util.List;
 
@@ -70,8 +71,9 @@ public abstract class MutationTestCase extends TestCase implements
 	 *            to load.
 	 * @return loaded resource.
 	 */
-	private Resource loadResource(String fileURIString) {
-		URI fileURI = URI.createURI(fileURIString, true);
+	protected Resource loadResource(String fileURIString) {
+		URI fileURI = URI.createFileURI(new File(fileURIString)
+				.getAbsolutePath());
 		return resourceSet.getResource(fileURI, true);
 	}
 
