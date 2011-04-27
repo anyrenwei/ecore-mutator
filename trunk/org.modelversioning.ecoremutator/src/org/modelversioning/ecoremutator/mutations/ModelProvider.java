@@ -127,20 +127,29 @@ public class ModelProvider implements IModelProvider {
 	public EObject getRandomEObject() {
 		TreeIterator<Object> treeIterator = EcoreUtil.getAllContents(
 				modelResource, true);
-		EList<EObject> eObjectList = new BasicEList<EObject>();
+		int modelSize = 0;
 		while (treeIterator.hasNext()) {
 			Object object = treeIterator.next();
-			if (object instanceof EModelElement) {
-				EObject eObject = (EModelElement) object;
-				eObjectList.add(eObject);
+			if (object instanceof EModelElement
+					&& !excludedObjects.contains(object)) {
+				modelSize++;
 			}
 		}
-		eObjectList.removeAll(excludedObjects);
-		if (eObjectList.size() > 0) {
-			return eObjectList.get(random.nextInt(eObjectList.size()));
-		} else {
-			return null;
+
+		int randomIndex = random.nextInt(modelSize);
+		int current = 0;
+		while (treeIterator.hasNext()) {
+			Object object = treeIterator.next();
+			if (object instanceof EModelElement
+					&& !excludedObjects.contains(object)) {
+				current++;
+				if (current == randomIndex) {
+					return (EObject) object;
+				}
+			}
 		}
+
+		return null;
 	}
 
 	/**
