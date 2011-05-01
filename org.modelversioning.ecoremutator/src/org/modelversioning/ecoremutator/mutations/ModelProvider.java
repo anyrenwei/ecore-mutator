@@ -241,7 +241,7 @@ public class ModelProvider implements IModelProvider {
 		EList<EStructuralFeature> features = new BasicEList<EStructuralFeature>();
 		for (EStructuralFeature feature : eObject.eClass()
 				.getEAllStructuralFeatures()) {
-			if (!feature.isTransient() && !feature.isDerived()) {
+			if (!rejectFeature(feature)) {
 				features.add(feature);
 			}
 		}
@@ -259,8 +259,7 @@ public class ModelProvider implements IModelProvider {
 		EList<EStructuralFeature> multiValuedFeatures = new BasicEList<EStructuralFeature>();
 		for (EStructuralFeature feature : eObject.eClass()
 				.getEAllStructuralFeatures()) {
-			if (feature.isMany() && !feature.isTransient()
-					&& !feature.isDerived()) {
+			if (feature.isMany() && !rejectFeature(feature)) {
 				multiValuedFeatures.add(feature);
 			}
 		}
@@ -279,8 +278,7 @@ public class ModelProvider implements IModelProvider {
 		EList<EStructuralFeature> singleValuedFeatures = new BasicEList<EStructuralFeature>();
 		for (EStructuralFeature feature : eObject.eClass()
 				.getEAllStructuralFeatures()) {
-			if (!feature.isMany() && feature.isChangeable()
-					&& !feature.isTransient() && !feature.isDerived()) {
+			if (!feature.isMany() && !rejectFeature(feature)) {
 				singleValuedFeatures.add(feature);
 			}
 		}
@@ -332,6 +330,16 @@ public class ModelProvider implements IModelProvider {
 		return features;
 	}
 
+	private boolean rejectFeature(EStructuralFeature feature) {
+		if (feature.isChangeable() && !feature.isVolatile()
+				&& !feature.isUnsettable() && !feature.isTransient()
+				&& !feature.isDerived()) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -352,7 +360,11 @@ public class ModelProvider implements IModelProvider {
 				} else {
 					if (feature instanceof EReference) {
 						EReference eReference = (EReference) feature;
-						if (eReference.isContainment()) {
+						if (eReference.isContainment() && !feature.isVolatile()
+								&& !feature.isUnsettable()
+								&& feature.isChangeable()
+								&& !feature.isTransient()
+								&& !feature.isDerived()) {
 							features.add(feature);
 						}
 					}
