@@ -199,6 +199,19 @@ public interface IModelProvider extends IEditingDomainProvider {
 			EClass eClass, boolean isContainment);
 
 	/**
+	 * Returns a random feature that is not a containment feature of the
+	 * specified <code>eObject</code>. Will only return
+	 * {@link EStructuralFeature}s that are changeable, not transient and not
+	 * derived. Might return <code>null</code> if there is none.
+	 * 
+	 * @param eObject
+	 *            to get random feature of.
+	 * @return random feature.
+	 */
+	public abstract EStructuralFeature getRandomNonContainmentFeature(
+			EObject eObject);
+
+	/**
 	 * Returns the children {@link EModelElement}s of the specified
 	 * <code>eObject</code>.
 	 * 
