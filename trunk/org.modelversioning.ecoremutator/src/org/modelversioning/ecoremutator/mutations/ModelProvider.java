@@ -12,10 +12,12 @@
 
 package org.modelversioning.ecoremutator.mutations;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -127,29 +129,21 @@ public class ModelProvider implements IModelProvider {
 	public EObject getRandomEObject() {
 		TreeIterator<Object> treeIterator = EcoreUtil.getAllContents(
 				modelResource, true);
-		int modelSize = 0;
+		List<EObject> objectList = new ArrayList<EObject>();
 		while (treeIterator.hasNext()) {
 			Object object = treeIterator.next();
 			if (object instanceof EModelElement
 					&& !excludedObjects.contains(object)) {
-				modelSize++;
+				objectList.add((EObject) object);
 			}
 		}
 
-		int randomIndex = random.nextInt(modelSize);
-		int current = 0;
-		while (treeIterator.hasNext()) {
-			Object object = treeIterator.next();
-			if (object instanceof EModelElement
-					&& !excludedObjects.contains(object)) {
-				current++;
-				if (current == randomIndex) {
-					return (EObject) object;
-				}
-			}
+		int randomIndex = random.nextInt(objectList.size() - 1);
+		try {
+			return objectList.get(randomIndex);
+		} catch (IndexOutOfBoundsException e) {
+			return null;
 		}
-
-		return null;
 	}
 
 	/**
@@ -161,16 +155,13 @@ public class ModelProvider implements IModelProvider {
 		EList<EObject> eObjectList = new BasicEList<EObject>();
 		while (treeIterator.hasNext()) {
 			Object object = treeIterator.next();
-			if (object instanceof EModelElement) {
-				EObject eObject = (EModelElement) object;
-				if (metaClass.equals(eObject.eClass())) {
-					eObjectList.add(eObject);
-				}
+			if (object instanceof EModelElement && metaClass.isInstance(object)) {
+				eObjectList.add((EObject) object);
 			}
 		}
 		eObjectList.removeAll(excludedObjects);
 		if (eObjectList.size() > 0) {
-			return eObjectList.get(random.nextInt(eObjectList.size()));
+			return eObjectList.get(random.nextInt(eObjectList.size() - 1));
 		} else {
 			return null;
 		}
@@ -250,6 +241,42 @@ public class ModelProvider implements IModelProvider {
 		} else {
 			return null;
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public EStructuralFeature getRandomNonContainmentFeature(EObject eObject) {
+		EList<EStructuralFeature> features = new BasicEList<EStructuralFeature>();
+		for (EStructuralFeature feature : eObject.eClass()
+				.getEAllStructuralFeatures()) {
+			if (!rejectFeature(feature) && !isContainmentFeature(feature)) {
+				features.add(feature);
+			}
+		}
+		if (features.size() > 0) {
+			return features.get(random.nextInt(features.size()));
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Specifies whether the specified <code>feature</code> is a containment
+	 * feature.
+	 * 
+	 * @param feature
+	 *            to check.
+	 * @return <code>true</code> if containment feature, otherwise
+	 *         <code>false</code>.
+	 */
+	private boolean isContainmentFeature(EStructuralFeature feature) {
+		if (feature instanceof EReference) {
+			if (((EReference) feature).isContainment()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

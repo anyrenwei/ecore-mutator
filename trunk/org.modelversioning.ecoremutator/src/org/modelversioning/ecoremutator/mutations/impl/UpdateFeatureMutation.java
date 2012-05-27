@@ -16,7 +16,6 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.modelversioning.ecoremutator.IModelProvider;
 import org.modelversioning.ecoremutator.mutations.AbstractMutation;
@@ -46,9 +45,8 @@ public class UpdateFeatureMutation extends AbstractMutation {
 		if (eObjectToUpdate != null) {
 			// get target feature
 			EStructuralFeature targetFeature = modelProvider
-					.getRandomFeature(eObjectToUpdate);
-			// guard null and containment feature (otherwise it would be a move)
-			if (targetFeature != null && !isContainmentFeature(targetFeature)) {
+					.getRandomNonContainmentFeature(eObjectToUpdate);
+			if (targetFeature != null) {
 				// get random value
 				Object value = modelProvider.getRandomValue(targetFeature);
 				if (value != null) {
@@ -94,24 +92,6 @@ public class UpdateFeatureMutation extends AbstractMutation {
 		tracker.track(this.getId(), message, false, toEObjectList(null),
 				toFeatureList(null));
 
-		return false;
-	}
-
-	/**
-	 * Specifies whether the specified <code>feature</code> is a containment
-	 * feature.
-	 * 
-	 * @param feature
-	 *            to check.
-	 * @return <code>true</code> if containment feature, otherwise
-	 *         <code>false</code>.
-	 */
-	private boolean isContainmentFeature(EStructuralFeature feature) {
-		if (feature instanceof EReference) {
-			if (((EReference) feature).isContainment()) {
-				return true;
-			}
-		}
 		return false;
 	}
 
